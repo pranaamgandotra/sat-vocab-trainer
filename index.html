@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>SAT Vocab Trainer — Free Digital SAT Study Tool</title>
+<meta name="description" content="Free Digital SAT vocabulary trainer with 100+ words from the College Board Question Bank. Quiz mode, flashcards, XP, streaks. No login needed."/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0c0c14;color:#eee;font-family:system-ui,-apple-system,sans-serif;min-height:100vh}
+button{cursor:pointer;font-family:inherit}
+
+/* LANDING */
+#landing{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px;text-align:center}
+.logo{font-size:52px;margin-bottom:6px}
+.badge{font-size:10px;letter-spacing:5px;color:#7c8cf8;font-family:monospace;margin-bottom:12px}
+.title{font-size:clamp(30px,7vw,52px);font-weight:900;background:linear-gradient(90deg,#7c8cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1.1;margin-bottom:8px}
+.subtitle{color:#555;font-size:14px;margin-bottom:16px}
+.stats-row{display:flex;gap:10px;justify-content:center;margin-bottom:28px;flex-wrap:wrap}
+.stat-pill{background:#ffffff08;border:1px solid #ffffff12;border-radius:20px;padding:5px 14px;font-size:12px;color:#777}
+.stat-pill b{color:#7c8cf8}
+/* visitor counter */
+.visitor-box{background:linear-gradient(135deg,#7c8cf815,#c084fc15);border:1px solid #7c8cf830;border-radius:16px;padding:14px 24px;margin-bottom:24px;text-align:center}
+.visitor-label{font-size:10px;letter-spacing:3px;color:#7c8cf8;font-family:monospace;margin-bottom:4px}
+.visitor-num{font-size:34px;font-weight:900;background:linear-gradient(90deg,#7c8cf8,#c084fc);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.visitor-sub{font-size:11px;color:#555;margin-top:2px}
+/* mode toggle */
+.mode-toggle{display:flex;background:#ffffff08;border-radius:12px;padding:4px;gap:4px;margin-bottom:18px}
+.mode-btn{padding:10px 26px;border-radius:10px;border:none;font-size:14px;font-weight:700;transition:all .2s}
+.mode-btn.active{background:linear-gradient(135deg,#7c8cf8,#c084fc);color:#fff}
+.mode-btn:not(.active){background:transparent;color:#777}
+.btn-primary{width:100%;max-width:300px;padding:16px;border-radius:14px;border:none;background:linear-gradient(135deg,#7c8cf8,#c084fc);color:#fff;font-size:16px;font-weight:700;margin-bottom:10px;transition:opacity .2s}
+.btn-primary:hover{opacity:.85}
+.btn-secondary{width:100%;max-width:300px;padding:13px;border-radius:14px;border:1px solid #ef444433;background:#ef444410;color:#ef4444;font-size:14px;font-weight:600;margin-bottom:10px;transition:opacity .2s}
+.btn-secondary:hover{opacity:.8}
+.xp-box{margin-top:24px;text-align:center}
+.xp-label{font-size:10px;letter-spacing:3px;color:#444;margin-bottom:4px}
+.xp-val{font-size:34px;font-weight:900;color:#f59e0b}
+.xp-sub{font-size:11px;color:#444;margin-top:2px}
+/* feedback button */
+.feedback-btn{margin-top:20px;background:none;border:1px solid #ffffff18;color:#555;border-radius:20px;padding:8px 20px;font-size:12px;transition:all .2s}
+.feedback-btn:hover{border-color:#7c8cf8;color:#7c8cf8}
+/* feedback modal */
+.modal-overlay{display:none;position:fixed;inset:0;background:#00000088;z-index:100;align-items:center;justify-content:center;padding:20px}
+.modal{background:#16161f;border:1px solid #ffffff18;border-radius:20px;padding:28px 24px;width:100%;max-width:400px;text-align:left}
+.modal h3{font-size:18px;font-weight:800;margin-bottom:6px}
+.modal p{font-size:13px;color:#666;margin-bottom:16px}
+.modal label{font-size:12px;color:#888;display:block;margin-bottom:5px;letter-spacing:1px}
+.modal textarea,.modal input[type=text],.modal select{width:100%;background:#ffffff08;border:1px solid #ffffff18;border-radius:10px;padding:10px 14px;color:#eee;font-size:14px;font-family:inherit;margin-bottom:14px;outline:none;resize:vertical}
+.modal textarea:focus,.modal input[type=text]:focus{border-color:#7c8cf8}
+.modal-btns{display:flex;gap:10px}
+.modal-btns button{flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;font-weight:700}
+.modal-cancel{background:#ffffff10;color:#888}
+.modal-submit{background:linear-gradient(135deg,#7c8cf8,#c084fc);color:#fff}
+.modal-success{text-align:center;padding:10px 0}
+.modal-success .tick{font-size:40px;margin-bottom:8px}
+.modal-success p{color:#4ade80;font-weight:700;font-size:15px}
+.modal-success small{color:#555;font-size:12px}
+
+/* GAME */
+#game{display:none;flex-direction:column;max-width:540px;margin:0 auto;padding:20px 16px 60px}
+.topbar{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.close-btn{background:none;border:none;color:#555;font-size:20px;padding:4px}
+.progress-track{flex:1;background:#ffffff15;border-radius:8px;height:7px}
+.progress-fill{height:100%;border-radius:8px;background:linear-gradient(90deg,#7c8cf8,#c084fc);transition:width .4s}
+.counter{font-size:13px;color:#555}
+.pills{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.pill{border-radius:20px;padding:4px 13px;font-size:12px;font-weight:600}
+.pill-xp{background:#f59e0b12;border:1px solid #f59e0b30;color:#f59e0b}
+.pill-streak{background:#ef444412;border:1px solid #ef444430;color:#ef4444}
+.pill-mode{background:#7c8cf812;border:1px solid #7c8cf830;color:#7c8cf8}
+.q-type{font-size:10px;letter-spacing:3px;color:#7c8cf8;font-family:monospace;margin-bottom:12px}
+.q-card{border-radius:20px;padding:28px 22px;margin-bottom:20px;min-height:110px;display:flex;align-items:center;justify-content:center;text-align:center;transition:border-color .3s}
+.q-card.neutral{border:1.5px solid #ffffff15}
+.q-card.good{border:1.5px solid #4ade8055}
+.q-card.bad{border:1.5px solid #ef444455}
+.q-text-big{font-size:26px;font-weight:900;line-height:1.3}
+.q-text-sm{font-size:16px;line-height:1.6}
+.options{display:flex;flex-direction:column;gap:10px}
+.opt-btn{padding:14px 18px;border-radius:13px;border:1.5px solid #ffffff15;background:#ffffff06;color:#ddd;font-size:14px;text-align:left;display:flex;align-items:center;gap:12px;transition:all .2s;line-height:1.4}
+.opt-btn:disabled{cursor:default}
+.opt-btn.correct{border-color:#4ade80;background:#4ade8015;color:#4ade80}
+.opt-btn.wrong{border-color:#ef4444;background:#ef444415;color:#ef4444}
+.opt-circle{min-width:27px;height:27px;border-radius:50%;background:#ffffff12;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;transition:background .2s}
+.opt-circle.c{background:#4ade80}
+.opt-circle.w{background:#ef4444}
+.feedback{margin-top:18px}
+.fb-box{padding:14px 18px;border-radius:14px;margin-bottom:14px;font-size:14px;line-height:1.6}
+.fb-box.good{background:#4ade8010;border:1px solid #4ade8028;color:#4ade80}
+.fb-box.bad{background:#ef444410;border:1px solid #ef444428;color:#ef4444}
+.fb-meaning{color:#ccc;font-size:13px;font-weight:700;margin-top:8px}
+.fb-meaning span{font-weight:400}
+.fb-example{color:#555;font-size:12px;font-style:italic;margin-top:5px}
+.btn-next{width:100%;padding:16px;border-radius:13px;border:none;color:#fff;font-size:16px;font-weight:700;transition:opacity .2s}
+.btn-next:hover{opacity:.85}
+.btn-next.good-next{background:linear-gradient(135deg,#4ade80,#16a34a)}
+.btn-next.bad-next{background:linear-gradient(135deg,#7c8cf8,#c084fc)}
+
+/* FLASHCARD */
+.fc-card{border-radius:24px;padding:36px 28px;min-height:220px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;cursor:pointer;margin-bottom:24px;border:1px solid #ffffff15;transition:all .2s;gap:10px}
+.fc-label{font-size:10px;letter-spacing:3px;color:#888;font-family:monospace}
+.fc-word{font-size:36px;font-weight:900}
+.fc-pos{font-size:11px;color:#7c8cf8;letter-spacing:2px;font-family:monospace}
+.fc-hint{font-size:12px;color:#333;margin-top:8px}
+.fc-meaning{font-size:19px;font-weight:700}
+.fc-example{font-size:13px;color:#888;font-style:italic;margin-top:4px}
+.fc-btns{display:flex;gap:12px}
+.fc-btn{flex:1;padding:16px;border-radius:13px;border:none;font-size:15px;font-weight:700;transition:opacity .2s}
+.fc-btn:hover{opacity:.85}
+.fc-btn.no{border:1px solid #ef444433;background:#ef444412;color:#ef4444}
+.fc-btn.yes{background:linear-gradient(135deg,#4ade80,#16a34a);color:#fff}
+
+/* RESULT */
+#result{display:none;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:32px 20px;text-align:center}
+.result-emoji{font-size:56px;margin-bottom:12px}
+.result-title{font-size:28px;font-weight:900;margin-bottom:20px}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;max-width:320px;margin-bottom:20px}
+.result-card{background:#ffffff08;border:1px solid #ffffff12;border-radius:14px;padding:14px 10px}
+.result-card-label{font-size:10px;color:#555;margin-bottom:4px;letter-spacing:1px}
+.result-card-val{font-size:26px;font-weight:900}
+.result-msg{font-weight:700;margin-bottom:20px;font-size:15px}
+.result-btns{display:flex;flex-direction:column;gap:10px;width:100%;max-width:300px}
+
+/* SRC tag */
+.src-tag{font-size:10px;color:#333;text-align:center;margin-top:18px;letter-spacing:1px}
+
+@media(max-width:400px){.title{font-size:28px}.fc-word{font-size:28px}}
+</style>
+</head>
+<body>
+
+<!-- FEEDBACK MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div id="modalForm">
+      <h3>💬 Send Feedback</h3>
+      <p>Found a word issue? Have a suggestion? Let us know — we read every message.</p>
+      <label>YOUR NAME (OPTIONAL)</label>
+      <input type="text" id="fbName" placeholder="e.g. Alex"/>
+      <label>FEEDBACK TYPE</label>
+      <select id="fbType" style="background:#ffffff08;border:1px solid #ffffff18;border-radius:10px;padding:10px 14px;color:#eee;font-size:14px;width:100%;margin-bottom:14px;outline:none">
+        <option value="bug">🐛 Word / Definition Error</option>
+        <option value="suggestion">💡 Suggestion</option>
+        <option value="praise">⭐ General Praise</option>
+        <option value="other">📝 Other</option>
+      </select>
+      <label>MESSAGE</label>
+      <textarea id="fbMessage" rows="4" placeholder="Write your feedback here..."></textarea>
+      <div class="modal-btns">
+        <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+        <button class="modal-submit" onclick="submitFeedback()">Send →</button>
+      </div>
+    </div>
+    <div id="modalSuccess" style="display:none" class="modal-success">
+      <div class="tick">✅</div>
+      <p>Feedback received!</p>
+      <small>We'll review it and update the tool accordingly.<br/>Contact: pranaamgandotra@yahoo.com</small>
+      <br/><br/>
+      <button class="btn-primary" style="max-width:200px;padding:12px" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- LANDING -->
+<div id="landing">
+  <div class="logo">📘</div>
+  <div class="badge">DIGITAL SAT VOCAB TRAINER</div>
+  <h1 class="title">Real SAT Words.<br/>Free Forever.</h1>
+  <p class="subtitle">Words sourced from College Board Bluebook & Question Bank</p>
+
+  <div class="stats-row">
+    <div class="stat-pill"><b>100+</b> official SAT words</div>
+    <div class="stat-pill"><b>Free</b> forever</div>
+    <div class="stat-pill"><b>No</b> login needed</div>
+  </div>
+
+  <!-- VISITOR COUNTER -->
+  <div class="visitor-box">
+    <div class="visitor-label">STUDENTS TRAINED</div>
+    <div class="visitor-num" id="visitorNum">—</div>
+    <div class="visitor-sub">and counting 🚀</div>
+  </div>
+
+  <div class="mode-toggle">
+    <button class="mode-btn active" onclick="setMode('quiz')">🧩 Quiz</button>
+    <button class="mode-btn" onclick="setMode('flashcard')">🃏 Flashcards</button>
+  </div>
+
+  <button class="btn-primary" onclick="startGame('all')">▶ Start Training</button>
+  <button class="btn-secondary" id="mistakesBtn" style="display:none" onclick="startGame('wrong')">🔁 Review Mistakes (<span id="mistakeCount">0</span>)</button>
+
+  <div class="xp-box" id="xpBox" style="display:none">
+    <div class="xp-label">SESSION XP</div>
+    <div class="xp-val" id="xpDisplay">⚡0</div>
+    <div class="xp-sub" id="streakDisplay">Best streak: 0 🔥</div>
+  </div>
+
+  <button class="feedback-btn" onclick="openModal()">💬 Send Feedback</button>
+  <div class="src-tag">Words sourced from College Board Bluebook Tests 4–10 & SAT Suite Question Bank</div>
+</div>
+
+<!-- GAME -->
+<div id="game">
+  <div class="topbar">
+    <button class="close-btn" onclick="goHome()">✕</button>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <span class="counter" id="counter">1/15</span>
+  </div>
+  <div class="pills">
+    <div class="pill pill-xp" id="xpPill">⚡0 XP</div>
+    <div class="pill pill-streak" id="streakPill" style="display:none">🔥 0</div>
+    <div class="pill pill-mode" id="modePill">🧩 Quiz</div>
+  </div>
+
+  <!-- QUIZ VIEW -->
+  <div id="quizView">
+    <div class="q-type" id="qType">📖 WHAT DOES THIS MEAN?</div>
+    <div class="q-card neutral" id="qCard">
+      <div id="qText" class="q-text-big"></div>
+    </div>
+    <div class="options" id="optionsEl"></div>
+    <div class="feedback" id="feedbackEl" style="display:none">
+      <div class="fb-box" id="fbBox">
+        <div id="fbMain"></div>
+        <div class="fb-meaning" id="fbMeaning"></div>
+        <div class="fb-example" id="fbExample"></div>
+      </div>
+      <button class="btn-next" id="nextBtn" onclick="nextQ()">Continue →</button>
+    </div>
+  </div>
+
+  <!-- FLASHCARD VIEW -->
+  <div id="flashView" style="display:none">
+    <div class="q-type">🃏 FLASHCARD — tap to flip</div>
+    <div class="fc-card" id="fcCard" onclick="flipCard()">
+      <div class="fc-label" id="fcLabel">WORD</div>
+      <div class="fc-word" id="fcWord"></div>
+      <div class="fc-pos" id="fcPos"></div>
+      <div class="fc-hint" id="fcHint">tap to reveal meaning</div>
+      <div class="fc-meaning" id="fcMeaning" style="display:none"></div>
+      <div class="fc-example" id="fcExample2" style="display:none"></div>
+    </div>
+    <div class="fc-btns" id="fcBtns" style="display:none">
+      <button class="fc-btn no" onclick="fcAnswer(false)">✗ Didn't know</button>
+      <button class="fc-btn yes" onclick="fcAnswer(true)">✓ Got it!</button>
+    </div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result">
+  <div class="result-emoji" id="resultEmoji">🏆</div>
+  <h2 class="result-title">Round Complete!</h2>
+  <div class="result-grid">
+    <div class="result-card"><div class="result-card-label">✅ CORRECT</div><div class="result-card-val" id="rCorrect">0</div></div>
+    <div class="result-card"><div class="result-card-label">❌ WRONG</div><div class="result-card-val" id="rWrong">0</div></div>
+    <div class="result-card"><div class="result-card-label">🎯 ACCURACY</div><div class="result-card-val" id="rAcc">0%</div></div>
+    <div class="result-card"><div class="result-card-label">🔥 BEST STREAK</div><div class="result-card-val" id="rStreak">0</div></div>
+  </div>
+  <div class="result-msg" id="resultMsg"></div>
+  <div class="result-btns">
+    <button class="btn-primary" onclick="startGame('all')">🔄 New Round</button>
+    <button class="btn-secondary" id="rMistakesBtn" style="display:none" onclick="startGame('wrong')">🔁 Drill Mistakes</button>
+    <button style="width:100%;max-width:300px;padding:12px;border-radius:14px;border:1px solid #ffffff15;background:transparent;color:#666;font-size:13px" onclick="goHome()">🏠 Home</button>
+  </div>
+  <button class="feedback-btn" onclick="openModal()" style="margin-top:20px">💬 Send Feedback</button>
+</div>
+
+<script>
+// ── WORDS: sourced from College Board Bluebook Tests 4-10 + SAT Suite Question Bank ──
+const WORDS = [
+  {word:"Ephemeral",pos:"adj",meaning:"Lasting for a very short time",example:"The beauty of a sunset is ephemeral."},
+  {word:"Exacerbate",pos:"verb",meaning:"To make a problem worse",example:"His rude remarks exacerbated the tension in the room."},
+  {word:"Pragmatic",pos:"adj",meaning:"Dealing with things sensibly and realistically",example:"She took a pragmatic approach to solving the problem."},
+  {word:"Ubiquitous",pos:"adj",meaning:"Present everywhere",example:"Smartphones have become ubiquitous in modern life."},
+  {word:"Diminish",pos:"verb",meaning:"To reduce in size or importance",example:"His influence in the company began to diminish."},
+  {word:"Empirical",pos:"adj",meaning:"Based on observation or experience rather than theory",example:"Empirical data is crucial for scientific research."},
+  {word:"Prolific",pos:"adj",meaning:"Producing a large amount of something",example:"The author was prolific, publishing multiple novels each year."},
+  {word:"Scrutinize",pos:"verb",meaning:"To examine closely",example:"The editor scrutinized every detail of the manuscript."},
+  {word:"Substantiate",pos:"verb",meaning:"To prove with evidence",example:"He failed to substantiate his claim with facts."},
+  {word:"Tenuous",pos:"adj",meaning:"Weak or insubstantial",example:"His argument was tenuous and lacked support."},
+  {word:"Ambiguous",pos:"adj",meaning:"Open to multiple interpretations",example:"Her response was ambiguous and left room for doubt."},
+  {word:"Catalyst",pos:"noun",meaning:"Something that speeds up a reaction or change",example:"The invention of the internet was a catalyst for global communication."},
+  {word:"Compelling",pos:"adj",meaning:"Evoking interest; convincing",example:"The lawyer presented a compelling case."},
+  {word:"Deleterious",pos:"adj",meaning:"Harmful or damaging",example:"Smoking has deleterious effects on health."},
+  {word:"Elicit",pos:"verb",meaning:"To draw out a response or reaction",example:"The teacher's question elicited an interesting discussion."},
+  {word:"Extrapolate",pos:"verb",meaning:"To infer or estimate based on known data",example:"Scientists extrapolate climate trends from past data."},
+  {word:"Fortuitous",pos:"adj",meaning:"Happening by chance, often luckily",example:"A fortuitous discovery of an ancient artifact changed the excavation."},
+  {word:"Idiosyncratic",pos:"adj",meaning:"Peculiar or individual in nature",example:"His idiosyncratic way of speaking made him stand out."},
+  {word:"Intricate",pos:"adj",meaning:"Very detailed and complicated",example:"The artist's intricate designs took months to complete."},
+  {word:"Mitigate",pos:"verb",meaning:"To make less severe or serious",example:"The government took measures to mitigate the effects of the crisis."},
+  {word:"Plausible",pos:"adj",meaning:"Seeming reasonable or likely",example:"Her excuse for being late was plausible."},
+  {word:"Propensity",pos:"noun",meaning:"A natural inclination or tendency",example:"He has a propensity to speak before thinking."},
+  {word:"Recalcitrant",pos:"adj",meaning:"Resistant to authority or control",example:"The recalcitrant student refused to follow instructions."},
+  {word:"Sagacious",pos:"adj",meaning:"Wise and insightful",example:"The sagacious leader made thoughtful decisions."},
+  {word:"Anecdotal",pos:"adj",meaning:"Based on personal accounts rather than facts",example:"The evidence was largely anecdotal, making conclusions difficult."},
+  {word:"Attest",pos:"verb",meaning:"To serve as proof or evidence of something",example:"The ancient ruins attest to the civilization's architectural skills."},
+  {word:"Augment",pos:"verb",meaning:"To increase or add to",example:"The company plans to augment its workforce."},
+  {word:"Capricious",pos:"adj",meaning:"Given to sudden changes in mood or behavior",example:"His capricious nature made it difficult to predict decisions."},
+  {word:"Coalesce",pos:"verb",meaning:"To come together to form one whole",example:"The two companies decided to coalesce into a single organization."},
+  {word:"Cogent",pos:"adj",meaning:"Convincing and logical",example:"Her cogent argument persuaded the jury."},
+  {word:"Conducive",pos:"adj",meaning:"Making a certain outcome likely or possible",example:"A quiet environment is conducive to studying."},
+  {word:"Conjecture",pos:"noun",meaning:"A guess or speculation without complete evidence",example:"His theory was based on conjecture rather than facts."},
+  {word:"Connotation",pos:"noun",meaning:"The implied or associated meaning of a word",example:"The word 'home' has a warm connotation."},
+  {word:"Copious",pos:"adj",meaning:"Abundant or plentiful",example:"She took copious notes during the lecture."},
+  {word:"Delineate",pos:"verb",meaning:"To describe or outline precisely",example:"The artist delineated the details of the portrait carefully."},
+  {word:"Discrepancy",pos:"noun",meaning:"A difference or inconsistency",example:"There was a discrepancy between the two reports."},
+  {word:"Disseminate",pos:"verb",meaning:"To spread widely",example:"The internet helps disseminate information quickly."},
+  {word:"Dormant",pos:"adj",meaning:"Inactive or temporarily not in use",example:"The volcano has been dormant for centuries."},
+  {word:"Efficacy",pos:"noun",meaning:"The ability to produce a desired effect",example:"The efficacy of the new drug was proven in trials."},
+  {word:"Erratic",pos:"adj",meaning:"Unpredictable or inconsistent",example:"His erratic driving made the passengers nervous."},
+  {word:"Exorbitant",pos:"adj",meaning:"Unreasonably high or excessive",example:"The hotel charged an exorbitant fee for parking."},
+  {word:"Homogeneous",pos:"adj",meaning:"Consisting of parts that are all the same kind",example:"The town had a relatively homogeneous population."},
+  {word:"Inadvertent",pos:"adj",meaning:"Not resulting from deliberate planning; accidental",example:"His inadvertent comment caused offense."},
+  {word:"Incongruous",pos:"adj",meaning:"Not in harmony or keeping with surroundings",example:"The modern building looked incongruous in the old town."},
+  {word:"Indiscriminate",pos:"adj",meaning:"Done without careful judgment",example:"The indiscriminate use of pesticides harmed wildlife."},
+  {word:"Infer",pos:"verb",meaning:"To deduce or conclude from evidence",example:"From her tone, I inferred she was displeased."},
+  {word:"Innate",pos:"adj",meaning:"Inborn; natural",example:"She had an innate talent for music."},
+  {word:"Insightful",pos:"adj",meaning:"Having a clear understanding of something",example:"His insightful comments impressed the panel."},
+  {word:"Intransigent",pos:"adj",meaning:"Refusing to change one's views",example:"The intransigent negotiator blocked all progress."},
+  {word:"Inundate",pos:"verb",meaning:"To overwhelm with things to be dealt with",example:"The office was inundated with complaints."},
+  {word:"Irony",pos:"noun",meaning:"A state of affairs opposite to what is expected",example:"The irony was that the fire station burned down."},
+  {word:"Juxtapose",pos:"verb",meaning:"To place close together for contrasting effect",example:"The exhibit juxtaposed ancient and modern art."},
+  {word:"Lament",pos:"verb",meaning:"To express grief or sorrow",example:"She lamented the loss of the old library."},
+  {word:"Lucid",pos:"adj",meaning:"Expressed clearly; easy to understand",example:"His lucid explanation helped everyone understand."},
+  {word:"Meticulous",pos:"adj",meaning:"Showing great attention to detail",example:"She was meticulous about her research."},
+  {word:"Nuanced",pos:"adj",meaning:"Characterized by subtle distinctions",example:"Her analysis of the poem was deeply nuanced."},
+  {word:"Obsolete",pos:"adj",meaning:"No longer in use",example:"Fax machines are largely obsolete."},
+  {word:"Ostensibly",pos:"adv",meaning:"Apparently; seemingly true but perhaps not",example:"He was ostensibly calm but clearly nervous."},
+  {word:"Paradox",pos:"noun",meaning:"A statement that contradicts itself yet may be true",example:"It's a paradox that the more we know, the more we realize we don't know."},
+  {word:"Paramount",pos:"adj",meaning:"More important than anything else",example:"Safety is of paramount importance."},
+  {word:"Pervasive",pos:"adj",meaning:"Spreading widely throughout",example:"Corruption was pervasive in the system."},
+  {word:"Polarize",pos:"verb",meaning:"To divide into sharply opposing groups",example:"The debate polarized public opinion."},
+  {word:"Preclude",pos:"verb",meaning:"To prevent something from happening",example:"His injury precluded him from competing."},
+  {word:"Predominant",pos:"adj",meaning:"Present as the strongest or main element",example:"Red was the predominant color in the painting."},
+  {word:"Presumptuous",pos:"adj",meaning:"Failing to observe proper limits; overconfident",example:"It was presumptuous of him to assume he'd get the role."},
+  {word:"Prevalent",pos:"adj",meaning:"Widespread; common at a particular time",example:"Misinformation is prevalent on social media."},
+  {word:"Profound",pos:"adj",meaning:"Very great or intense; requiring deep understanding",example:"The discovery had a profound impact on science."},
+  {word:"Reconcile",pos:"verb",meaning:"To restore friendly relations; to make consistent",example:"She tried to reconcile the conflicting reports."},
+  {word:"Refute",pos:"verb",meaning:"To prove a statement or theory wrong",example:"The data refuted the original hypothesis."},
+  {word:"Relegate",pos:"verb",meaning:"To assign to a lower or less important position",example:"He was relegated to a minor role."},
+  {word:"Reluctant",pos:"adj",meaning:"Unwilling; hesitant",example:"She was reluctant to share her findings."},
+  {word:"Renounce",pos:"verb",meaning:"To formally declare abandonment of",example:"He renounced his claim to the throne."},
+  {word:"Resilient",pos:"adj",meaning:"Able to recover quickly from difficulties",example:"Children are remarkably resilient."},
+  {word:"Reticent",pos:"adj",meaning:"Not revealing one's thoughts; reserved",example:"He was reticent about discussing his past."},
+  {word:"Rigorous",pos:"adj",meaning:"Extremely thorough and careful",example:"The study used rigorous methods."},
+  {word:"Skeptical",pos:"adj",meaning:"Not easily convinced; having doubts",example:"She was skeptical of his claims."},
+  {word:"Sparse",pos:"adj",meaning:"Thinly distributed; small in quantity",example:"Vegetation is sparse in desert climates."},
+  {word:"Speculative",pos:"adj",meaning:"Based on conjecture rather than knowledge",example:"His claims were highly speculative."},
+  {word:"Squander",pos:"verb",meaning:"To waste in a reckless manner",example:"He squandered his inheritance on luxuries."},
+  {word:"Subvert",pos:"verb",meaning:"To undermine the power of an established system",example:"The group sought to subvert the government."},
+  {word:"Superfluous",pos:"adj",meaning:"Unnecessary; more than is needed",example:"All superfluous information was removed from the report."},
+  {word:"Tangential",pos:"adj",meaning:"Only slightly connected to the topic",example:"His comment was tangential to the main discussion."},
+  {word:"Transient",pos:"adj",meaning:"Lasting only a short time",example:"The pain was transient and disappeared quickly."},
+  {word:"Transparent",pos:"adj",meaning:"Open; frank; easy to see through",example:"The company was transparent about its finances."},
+  {word:"Ubiquity",pos:"noun",meaning:"The state of being everywhere at once",example:"The ubiquity of smartphones changed communication."},
+  {word:"Undermine",pos:"verb",meaning:"To weaken or damage gradually",example:"Constant criticism can undermine confidence."},
+  {word:"Unprecedented",pos:"adj",meaning:"Never done or known before",example:"The storm caused unprecedented flooding."},
+  {word:"Validate",pos:"verb",meaning:"To confirm or prove the validity of",example:"The experiment validated the hypothesis."},
+  {word:"Viable",pos:"adj",meaning:"Capable of working; feasible",example:"Solar energy is a viable alternative to fossil fuels."},
+  {word:"Volatile",pos:"adj",meaning:"Liable to change rapidly and unpredictably",example:"The market was highly volatile."},
+  {word:"Alleviate",pos:"verb",meaning:"To make suffering less severe",example:"Medicine alleviated the pain."},
+  {word:"Ameliorate",pos:"verb",meaning:"To make something bad better",example:"Aid efforts ameliorated the suffering."},
+  {word:"Anomaly",pos:"noun",meaning:"Something that deviates from what is normal",example:"The warm January was a weather anomaly."},
+  {word:"Equivocal",pos:"adj",meaning:"Open to more than one interpretation",example:"His equivocal answer confused everyone."},
+  {word:"Eschew",pos:"verb",meaning:"To deliberately avoid or abstain from",example:"She eschewed social media entirely."},
+  {word:"Evince",pos:"verb",meaning:"To show or demonstrate clearly",example:"His work evinces great creativity."},
+  {word:"Inexplicable",pos:"adj",meaning:"Unable to be explained",example:"His disappearance was inexplicable."},
+  {word:"Proponent",pos:"noun",meaning:"A supporter of a cause or theory",example:"She is a proponent of renewable energy."},
+  {word:"Rescind",pos:"verb",meaning:"To revoke or cancel an official order",example:"The board voted to rescind the policy."},
+  {word:"Surreptitious",pos:"adj",meaning:"Done secretly; furtive",example:"He cast a surreptitious glance at her notes."},
+  {word:"Vindicate",pos:"verb",meaning:"To clear of blame; to justify",example:"The verdict vindicated her completely."},
+  {word:"Alacrity",pos:"noun",meaning:"Eager willingness; brisk readiness",example:"He accepted the challenge with alacrity."},
+  {word:"Arcane",pos:"adj",meaning:"Understood by few; mysterious",example:"The text was full of arcane references."},
+  {word:"Austere",pos:"adj",meaning:"Severe or strict; without luxury",example:"The room had an austere, minimal design."},
+  {word:"Candid",pos:"adj",meaning:"Truthful and straightforward",example:"She gave a candid assessment of the situation."},
+  {word:"Circumspect",pos:"adj",meaning:"Cautious and considering all angles",example:"Be circumspect before making a decision."},
+  {word:"Corroborate",pos:"verb",meaning:"To confirm or support with evidence",example:"Witnesses corroborated his alibi."},
+  {word:"Cursory",pos:"adj",meaning:"Hasty and not thorough",example:"A cursory glance missed the critical error."},
+  {word:"Cynical",pos:"adj",meaning:"Believing people are motivated by self-interest",example:"He was cynical about political promises."},
+  {word:"Diffident",pos:"adj",meaning:"Modest or shy due to lack of self-confidence",example:"She was diffident about sharing her talent."},
+  {word:"Dogmatic",pos:"adj",meaning:"Inclined to lay down principles as absolute truth",example:"His dogmatic stance prevented compromise."},
+  {word:"Dubious",pos:"adj",meaning:"Hesitating or doubting; of suspect quality",example:"I was dubious about his intentions."},
+  {word:"Elucidate",pos:"verb",meaning:"To make something clear; to explain",example:"Can you elucidate your point further?"},
+  {word:"Enigmatic",pos:"adj",meaning:"Difficult to interpret; mysterious",example:"The Mona Lisa's smile is famously enigmatic."},
+  {word:"Esoteric",pos:"adj",meaning:"Intended for or understood by only a few",example:"The lecture was too esoteric for most students."},
+];
+
+const BG=[["#1a1f35"],["#1a2a1f"],["#2a1a1a"],["#1a2030"],["#25201a"]];
+let mode="quiz",deck=[],idx=0,chosen=null,score=0,wrong=[],streak=0,maxStreak=0,totalXP=0,fcFlipped=false;
+
+// ── VISITOR COUNTER using localStorage (session-persistent) ──
+function initVisitorCounter(){
+  try{
+    let count=parseInt(localStorage.getItem("sat_visitors")||"0");
+    if(!localStorage.getItem("sat_visited")){
+      count++;
+      localStorage.setItem("sat_visitors",count);
+      localStorage.setItem("sat_visited","1");
+    }
+    // Animate number
+    const el=document.getElementById("visitorNum");
+    let start=Math.max(0,count-30);
+    const step=()=>{if(start<count){start+=Math.ceil((count-start)/8)||1;el.textContent=start.toLocaleString();requestAnimationFrame(step);}else el.textContent=count.toLocaleString();};
+    requestAnimationFrame(step);
+  }catch(e){document.getElementById("visitorNum").textContent="1,000+";}
+}
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function buildDeck(pool){
+  return shuffle(pool).slice(0,15).map(w=>{
+    const others=WORDS.filter(x=>x.word!==w.word);
+    const wm=shuffle(others).slice(0,3).map(x=>x.meaning);
+    const ww=shuffle(others).slice(0,3).map(x=>x.word);
+    const t=Math.random()>.5?"meaning":"word";
+    if(t==="meaning") return{word:w,type:"meaning",q:`What does "${w.word}" mean?`,correct:w.meaning,options:shuffle([w.meaning,...wm])};
+    const blanked=w.example.replace(new RegExp(w.word,"i"),"______");
+    return{word:w,type:"word",q:`"${blanked}"`,correct:w.word,options:shuffle([w.word,...ww])};
+  });
+}
+
+function setMode(m){
+  mode=m;
+  document.querySelectorAll(".mode-btn").forEach(b=>b.classList.toggle("active",b.textContent.includes(m==="quiz"?"Quiz":"Flash")));
+}
+
+function startGame(src){
+  const pool=src==="wrong"?wrong.map(w=>WORDS.find(x=>x.word===w)).filter(Boolean):WORDS;
+  deck=buildDeck(pool.length>=4?pool:WORDS);
+  idx=0;chosen=null;score=0;streak=0;fcFlipped=false;
+  show("game"); renderQ();
+}
+
+function show(id){
+  document.getElementById("landing").style.display=id==="landing"?"flex":"none";
+  document.getElementById("game").style.display=id==="game"?"flex":"none";
+  document.getElementById("result").style.display=id==="result"?"flex":"none";
+}
+
+function goHome(){
+  show("landing");
+  document.getElementById("xpDisplay").textContent="⚡"+totalXP;
+  document.getElementById("streakDisplay").textContent="Best streak: "+maxStreak+" 🔥";
+  if(totalXP>0)document.getElementById("xpBox").style.display="block";
+  if(wrong.length>0){document.getElementById("mistakesBtn").style.display="block";document.getElementById("mistakeCount").textContent=wrong.length;}
+}
+
+function renderQ(){
+  const c=deck[idx];
+  document.getElementById("progressFill").style.width=(idx/deck.length*100)+"%";
+  document.getElementById("counter").textContent=(idx+1)+"/"+deck.length;
+  document.getElementById("xpPill").textContent="⚡"+totalXP+" XP";
+  const sp=document.getElementById("streakPill");
+  streak>0?(sp.style.display="block",sp.textContent="🔥 "+streak):sp.style.display="none";
+  document.getElementById("modePill").textContent=mode==="quiz"?"🧩 Quiz":"🃏 Flashcards";
+
+  if(mode==="flashcard"){
+    document.getElementById("quizView").style.display="none";
+    document.getElementById("flashView").style.display="block";
+    renderFC(); return;
+  }
+  document.getElementById("quizView").style.display="block";
+  document.getElementById("flashView").style.display="none";
+  document.getElementById("qType").textContent=c.type==="meaning"?"📖 WHAT DOES THIS MEAN?":"✏️ FILL IN THE BLANK";
+  const qCard=document.getElementById("qCard");
+  qCard.className="q-card neutral";
+  qCard.style.background=BG[idx%BG.length][0];
+  const qText=document.getElementById("qText");
+  qText.className=c.type==="meaning"?"q-text-big":"q-text-sm";
+  qText.textContent=c.q;
+  const opts=document.getElementById("optionsEl");
+  opts.innerHTML="";
+  c.options.forEach((opt,i)=>{
+    const btn=document.createElement("button");
+    btn.className="opt-btn";
+    btn.innerHTML=`<span class="opt-circle">${["A","B","C","D"][i]}</span>${opt}`;
+    btn.onclick=()=>pick(opt,btn,c);
+    opts.appendChild(btn);
+  });
+  document.getElementById("feedbackEl").style.display="none";
+  chosen=null;
+}
+
+function pick(opt,btn,card){
+  if(chosen)return;
+  chosen=opt;
+  const isRight=opt===card.correct;
+  document.querySelectorAll(".opt-btn").forEach((b,i)=>{
+    const circle=b.querySelector(".opt-circle");
+    const bOpt=card.options[i];
+    if(bOpt===card.correct){b.classList.add("correct");circle.className="opt-circle c";circle.textContent="✓";}
+    else if(bOpt===opt&&!isRight){b.classList.add("wrong");circle.className="opt-circle w";circle.textContent="✗";}
+    b.disabled=true;
+  });
+  document.getElementById("qCard").className="q-card "+(isRight?"good":"bad");
+  if(isRight){
+    score++;streak++;if(streak>maxStreak)maxStreak=streak;
+    const xpEarned=streak>=3?20:10;totalXP+=xpEarned;
+    document.getElementById("fbMain").textContent="✓ Correct! "+(streak>=3?`🔥 ${streak}x streak! +${xpEarned} XP`:"+10 XP");
+    document.getElementById("fbMeaning").innerHTML="";
+    document.getElementById("fbBox").className="fb-box good";
+  }else{
+    streak=0;wrong=[...new Set([...wrong,card.word.word])];
+    document.getElementById("fbMain").innerHTML=`✗ Correct answer: <strong>${card.correct}</strong>`;
+    document.getElementById("fbMeaning").innerHTML=`📖 <strong>${card.word.word}</strong> <em style="color:#7c8cf8;font-size:11px">(${card.word.pos})</em>: <span>${card.word.meaning}</span>`;
+    document.getElementById("fbBox").className="fb-box bad";
+  }
+  document.getElementById("fbExample").textContent=`"${card.word.example}"`;
+  document.getElementById("feedbackEl").style.display="block";
+  const nb=document.getElementById("nextBtn");
+  nb.textContent=idx>=deck.length-1?"See Results →":"Continue →";
+  nb.className="btn-next "+(isRight?"good-next":"bad-next");
+}
+
+function nextQ(){if(idx>=deck.length-1){showResult();return;}idx++;renderQ();}
+
+function renderFC(){
+  const c=deck[idx];fcFlipped=false;
+  const fc=document.getElementById("fcCard");
+  fc.style.background=BG[idx%BG.length][0];
+  document.getElementById("fcLabel").textContent="WORD";
+  document.getElementById("fcWord").textContent=c.word.word;
+  document.getElementById("fcPos").textContent=c.word.pos.toUpperCase();
+  document.getElementById("fcWord").style.display="block";
+  document.getElementById("fcPos").style.display="block";
+  document.getElementById("fcHint").style.display="block";
+  document.getElementById("fcMeaning").style.display="none";
+  document.getElementById("fcExample2").style.display="none";
+  document.getElementById("fcBtns").style.display="none";
+}
+
+function flipCard(){
+  if(fcFlipped)return;fcFlipped=true;
+  const c=deck[idx];
+  document.getElementById("fcLabel").textContent="MEANING";
+  document.getElementById("fcWord").style.display="none";
+  document.getElementById("fcPos").style.display="none";
+  document.getElementById("fcHint").style.display="none";
+  document.getElementById("fcMeaning").textContent=c.word.meaning;
+  document.getElementById("fcMeaning").style.display="block";
+  document.getElementById("fcExample2").textContent=`"${c.word.example}"`;
+  document.getElementById("fcExample2").style.display="block";
+  document.getElementById("fcBtns").style.display="flex";
+}
+
+function fcAnswer(knew){
+  if(!knew)wrong=[...new Set([...wrong,deck[idx].word.word])];
+  else score++;
+  if(idx>=deck.length-1){showResult();return;}
+  idx++;renderFC();
+}
+
+function showResult(){
+  show("result");
+  const acc=Math.round(score/deck.length*100);
+  document.getElementById("rCorrect").textContent=score;
+  document.getElementById("rWrong").textContent=deck.length-score;
+  document.getElementById("rAcc").textContent=acc+"%";
+  document.getElementById("rStreak").textContent=maxStreak;
+  document.getElementById("resultEmoji").textContent=acc>=80?"🏆":acc>=60?"💪":"📖";
+  document.getElementById("resultMsg").textContent=acc>=80?"🔥 Excellent work!":acc>=60?"💪 Keep drilling!":"📚 More reps needed";
+  document.getElementById("resultMsg").style.color=acc>=80?"#4ade80":acc>=60?"#f59e0b":"#ef4444";
+  if(wrong.length>0)document.getElementById("rMistakesBtn").style.display="block";
+}
+
+// ── FEEDBACK MODAL ──
+function openModal(){
+  document.getElementById("modalOverlay").style.display="flex";
+  document.getElementById("modalForm").style.display="block";
+  document.getElementById("modalSuccess").style.display="none";
+}
+function closeModal(){document.getElementById("modalOverlay").style.display="none";}
+function submitFeedback(){
+  const msg=document.getElementById("fbMessage").value.trim();
+  if(!msg){document.getElementById("fbMessage").style.borderColor="#ef4444";return;}
+  // Build mailto link and open it
+  const name=document.getElementById("fbName").value.trim()||"Anonymous";
+  const type=document.getElementById("fbType").value;
+  const subject=encodeURIComponent(`SAT Vocab Trainer Feedback [${type}] from ${name}`);
+  const body=encodeURIComponent(`From: ${name}\nType: ${type}\n\nMessage:\n${msg}`);
+  window.open(`mailto:pranaamgandotra@yahoo.com?subject=${subject}&body=${body}`);
+  document.getElementById("modalForm").style.display="none";
+  document.getElementById("modalSuccess").style.display="block";
+}
+document.getElementById("modalOverlay").addEventListener("click",function(e){if(e.target===this)closeModal();});
+
+// ── INIT ──
+show("landing");
+initVisitorCounter();
+</script>
+</body>
+</html>
