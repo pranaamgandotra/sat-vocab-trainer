@@ -395,6 +395,16 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 async function initVisitorCounter(){
   try{
+    if(localStorage.getItem('sat_visited')){
+  const res = await fetch(`${SUPABASE_URL}/counter?id=eq.1`,{
+    headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
+  });
+  const data = await res.json();
+  const el = document.getElementById('visitor-count');
+  if(el) el.textContent = data[0].count.toLocaleString();
+  return;
+}
+localStorage.setItem('sat_visited','1');
     const res = await fetch(`${SUPABASE_URL}/counter?id=eq.1`,{
       headers:{'apikey':SUPABASE_KEY,'Authorization':`Bearer ${SUPABASE_KEY}`}
     });
